@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       home: new HomePage(0, meagurService),
       theme: new ThemeData(
         accentColor: Colors.lightBlue,
-        primaryColor: Colors.blue,
+        primaryColor: Colors.blueGrey,
         hintColor: Colors.grey[700],
       ),
       routes: <String, WidgetBuilder> {
