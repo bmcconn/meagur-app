@@ -1,6 +1,6 @@
 # meagur
 
-A new Flutter project.
+A new Flutter project. Create and manage sports leagues.
 
 ## Getting Started
 

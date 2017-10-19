@@ -1,5 +1,3 @@
-
-
 class TeamRecord {
   int _wins;
   int _losses;

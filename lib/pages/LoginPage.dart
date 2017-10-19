@@ -1,12 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:validator/validator.dart';
+import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/services.dart';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:meagur/main.dart';
+import 'package:meagur/models/auth/ApiToken.dart';
 import 'package:meagur/models/auth/LoginCredentials.dart';
-import 'package:meagur/auth/AuthProvider.dart';
+import 'package:validator/validator.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({Key key}) : super(key: key);
+  LoginPage({Key key, @required this.onChanged}) : super(key: key);
+
+  final bool loggingIn = false;
+  final ValueChanged<bool> onChanged;
 
   @override
   State createState() {
@@ -17,9 +23,6 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   String _email = "";
   String _password = "";
-  var responseData = '';
-
-  AuthProvider auth = new AuthProvider();
 
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final GlobalKey<FormFieldState<String>> _emailFieldKey =
@@ -27,65 +30,120 @@ class _LoginPageState extends State<LoginPage> {
   final GlobalKey<FormFieldState<String>> _passwordFieldKey =
       new GlobalKey<FormFieldState<String>>();
 
+  bool _inProgress = false;
+
+  Widget _bottomRow() {
+    if (_inProgress == false) {
+      return _actionRow();
+    } else if (_inProgress == true) {
+      return _progressIndicator();
+    } else {
+      return _errorText();
+    }
+  }
+
+  Widget _actionRow() {
+    return new Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: <Widget>[
+        new FlatButton(
+          onPressed: _handleRegisterPressed,
+          child: new Text(
+            "Register",
+            style: new TextStyle(color: Theme.of(context).primaryColor),
+          ),
+        ),
+        new SizedBox(width: 16.0,),
+        new FlatButton(
+          onPressed: null,
+          child: new Text(
+            "Forgot Password",
+            style: new TextStyle(color: Theme.of(context).primaryColor),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _progressIndicator() {
+    return new LinearProgressIndicator(
+      value: null,
+      valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+    );
+  }
+
+  Widget _errorText() {
+    return new Text(
+      "Those Credentials are Incorrect. Please Try Again.",
+      style: new TextStyle(color: Theme.of(context).errorColor),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text("Meagur"),
       ),
-      body: new Container(
-        padding: new EdgeInsets.symmetric(horizontal: 16.0),
-        child: new Center(
-            child: new Form(
-                key: _formKey,
-                child: new Column(
+      body: new SingleChildScrollView(
+        child: new Container(
+          alignment: Alignment.topCenter,
+          padding: new EdgeInsets.symmetric(horizontal: 16.0),
+          child: new Form(
+            key: _formKey,
+            child: new Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                new TextFormField(
+                  key: _emailFieldKey,
+                  decoration: const InputDecoration(
+                    labelText: "Email",
+                  ),
+                  onSaved: (String value) {
+                    _email = value;
+                  },
+                  validator: _validateEmail,
+                ),
+                new TextFormField(
+                  key: _passwordFieldKey,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: "Password",
+                  ),
+                  onSaved: (String value) {
+                    _password = value;
+                  },
+                  validator: _validatePassword,
+                ),
+                new Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    new TextFormField(
-                      key: _emailFieldKey,
-                      decoration: const InputDecoration(
-                        labelText: "Email",
+                    new Expanded(
+                        child: new Container(
+                      padding: new EdgeInsets.only(top: 16.0),
+                      child: new RaisedButton(
+                        onPressed: _handleSignIn,
+                        color: Theme.of(context).accentColor,
+                        child: new Text(
+                          "Sign In",
+                          style: new TextStyle(
+                            color: Colors.white,
+                          ),
+                        )
                       ),
-                      onSaved: (String value) {
-                        _email = value;
-                      },
-                      validator: _validateEmail,
-                    ),
-                    new TextFormField(
-                      key: _passwordFieldKey,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: "Password",
-                      ),
-                      onSaved: (String value) {
-                        _password = value;
-                      },
-                      validator: _validatePassword,
-                    ),
-                    new Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        new Expanded(
-                            child: new Container(
-                          padding: new EdgeInsets.only(top: 16.0),
-                          child: new RaisedButton(
-                              onPressed: _handleSignIn,
-                              color: Theme.of(context).primaryColor,
-                              child: new Text(
-                                "Sign In",
-                                style: new TextStyle(
-                                  color: Colors.white,
-                                ),
-                              )),
-                        ))
-                      ],
-                    ),
-                    new Text(responseData),
+                    ))
                   ],
-                )
+                ),
+                new SizedBox(
+                  height: 16.0,
+                ),
+                new Divider(),
+                _bottomRow(),
+              ],
             )
+          )
         ),
-      ),
+      )
     );
   }
 
@@ -95,40 +153,42 @@ class _LoginPageState extends State<LoginPage> {
     form.save();
 
     if (passedValidation) {
-      _getApiToken(_email, _password);
+      setState(() {
+        _inProgress = true;
+      });
+      Future<String> future =
+          meagurService.getApiToken(new LoginCredentials(_email, _password));
+
+      future
+          .then((value) => _handleSuccess(value))
+          .catchError((error) => _handleError(error));
     }
   }
 
-  _getApiToken(String email, String password) async {
-    var httpClient = createHttpClient();
-
-    const jsonCodec = const JsonCodec();
-
-    var jsonBody = jsonCodec.encode(new LoginCredentials(email, password));
-
-    var response = await httpClient.post(
-      "http://10.0.2.2:8000/oauth/token",
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: jsonBody,
-    );
-
-    /*setState(() {
-      responseData = response.statusCode.toString();
-    });*/
-
-    if (response.statusCode == 200) {
+  void _handleSuccess(String value) {
+    if (value == '401') {
+      print("Invalid");
       setState(() {
-        responseData = JSON.decode(response.body)['token_type'];
-        //   responseData =  password;
+        _inProgress = null;
       });
     } else {
       setState(() {
-        responseData = '';
+        _inProgress = true;
+      });
+
+      ApiToken token = new ApiToken.fromMap(JSON.decode(value));
+
+      Future<bool> saved =
+          meagurService.getAuthProvider().saveApiToken(token.getAccessToken());
+
+      saved.then((bool) {
+        widget.onChanged(!widget.loggingIn);
       });
     }
+  }
+
+  void _handleError(FlutterError error) {
+    print(error.toString());
   }
 
   String _validateEmail(String value) {
@@ -148,4 +208,6 @@ class _LoginPageState extends State<LoginPage> {
     }
     return null;
   }
+
+  void _handleRegisterPressed() {}
 }

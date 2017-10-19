@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:meagur/main.dart';
 import 'package:meagur/models/leagues/League.dart';
 import 'package:meagur/pages/ManageLeague.dart';
-import 'package:meagur/services/MeagurService.dart';
 import 'package:meagur/pages/LeagueHomePage.dart';
 
 class LeagueCardWidget extends StatefulWidget {
-  LeagueCardWidget(this._league, this.meagurService,{Key key}) : super(key: key);
+  LeagueCardWidget(this._league, {Key key}) : super(key: key);
 
   final League _league;
-  final MeagurService meagurService;
 
   @override
   State createState() => new _LeagueCardWidgetState();
@@ -48,13 +47,13 @@ class _LeagueCardWidgetState extends State<LeagueCardWidget> {
 
   void _handleViewTap() {
     Navigator.of(context).push(new MaterialPageRoute(
-      builder: (BuildContext context) => new LeagueHomePage(widget._league.getId(), widget._league.getName(), widget.meagurService),
+      builder: (BuildContext context) => new LeagueHomePage(widget._league.getId(), widget._league.getName()),
     ));
   }
 
   void _handleManageTap() {
     Navigator.of(context).push(new MaterialPageRoute(
-      builder: (BuildContext context) => new ManageLeague(widget._league, widget.meagurService),
+      builder: (BuildContext context) => new ManageLeague(widget._league, meagurService),
     ));
   }
 }

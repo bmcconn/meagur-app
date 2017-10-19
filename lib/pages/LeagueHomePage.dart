@@ -1,20 +1,13 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:meagur/models/divisions/DivisionList.dart';
-import 'package:meagur/models/leagues/League.dart';
 import 'package:meagur/pages/partials/LeagueStandingsWidget.dart';
-import 'package:meagur/services/MeagurService.dart';
-import 'package:meagur/models/teams/Team.dart';
 
 class LeagueHomePage extends StatefulWidget {
-  LeagueHomePage(this._leagueId, this._leagueName, this.meagurService,
+  LeagueHomePage(this._leagueId, this._leagueName,
       {Key key})
       : super(key: key);
 
   final int _leagueId;
   final String _leagueName;
-  final MeagurService meagurService;
 
   @override
   State createState() {
@@ -31,6 +24,8 @@ class _LeagueHomePageState extends State<LeagueHomePage> with SingleTickerProvid
     new Tab(text: "Standings",),
     new Tab(text: "Schedule"),
   ];
+
+
 
 
   @override
@@ -52,13 +47,7 @@ class _LeagueHomePageState extends State<LeagueHomePage> with SingleTickerProvid
       body: new TabBarView(
         controller: _tabController,
         children: <Widget>[
-          new Container(
-            padding: const EdgeInsets.all(8.0),
-            child: new Card(
-              color: Colors.grey[50],
-              child: new LeagueStandingsWidget(widget._leagueId, widget.meagurService)
-            )
-          ),
+          new LeagueStandingsWidget(widget._leagueId),
           new Center(child: new Text("Schedule Page"),)
         ],
       )

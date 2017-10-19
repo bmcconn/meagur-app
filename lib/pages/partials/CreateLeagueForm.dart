@@ -1,17 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:meagur/models/leagues/League.dart';
+import 'package:meagur/main.dart';
+import 'package:meagur/models/errors/ErrorMessage.dart';
 import 'package:meagur/models/requests/CreateLeagueRequest.dart';
 import 'package:meagur/pages/CreateLeagueSchedulePage.dart';
-import 'package:meagur/services/MeagurService.dart';
+import 'package:meagur/pages/partials/NoLongerLoggedInWidget.dart';
 import 'package:validator/validator.dart';
 
 class CreateLeagueForm extends StatefulWidget {
-  final MeagurService meagurService;
-
-  CreateLeagueForm(this.meagurService);
 
   @override
   State createState() => new _CreateLeagueFormState();
@@ -50,7 +47,7 @@ class _CreateLeagueFormState extends State<CreateLeagueForm> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_processing) {
+    if (_processing == false) {
       return new Form(
         key: _formKey,
         child: new DropdownButtonHideUnderline(
@@ -213,8 +210,10 @@ class _CreateLeagueFormState extends State<CreateLeagueForm> {
           ),
         ),
       );
-    } else {
+    } else if(_processing == true){
       return new Center(child: new CircularProgressIndicator());
+    } else {
+      return new NoLongerLoggedInWidget();
     }
   }
 
@@ -236,7 +235,7 @@ class _CreateLeagueFormState extends State<CreateLeagueForm> {
         _processing = true;
       });
 
-      Future<String> future = widget.meagurService
+      Future<dynamic> future = meagurService
           .postCreateLeague(createLeagueRequest, _sportDropdownValue);
 
       future
@@ -245,19 +244,27 @@ class _CreateLeagueFormState extends State<CreateLeagueForm> {
     }
   }
 
-  void handleSuccess(String value) {
-    widget.meagurService.mApiFutures.invalidate('/basketball_leagues');
+  void handleSuccess(dynamic value) {
+    if(value is ErrorMessage) {
+      setState(() {
+        _processing = null;
+      });
+    } else {
+      meagurService.mApiFutures.invalidate('/basketball_leagues');
 
-    Navigator.of(context).removeRoute(ModalRoute.of(context));
+      Navigator.of(context).removeRoute(ModalRoute.of(context));
 
-    League createdLeague = new League.overview(JSON.decode(value)['data']);
-
-    Navigator.of(context).pushReplacement(new MaterialPageRoute(
-        builder: (BuildContext context) =>
-            new CreateLeagueSchedulePage(createdLeague, widget.meagurService)));
+      Navigator.of(context).pushReplacement(new MaterialPageRoute(
+          builder: (BuildContext context) =>
+          new CreateLeagueSchedulePage(value)));
+    }
   }
 
-  void handleError(String error) {}
+  void handleError(dynamic error) {
+    setState(() {
+      _processing = null;
+    });
+  }
 
   String _validateSport(String value) {
     if (_sportDropdownValue == null) {
