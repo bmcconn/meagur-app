@@ -1,5 +1,4 @@
 import 'Team.dart';
-import 'package:meagur/models/leagues/League.dart';
 
 class TeamList {
 
@@ -13,7 +12,6 @@ class TeamList {
 
   TeamList.fromMap(Map<String, dynamic> map) {
     map['data'].forEach((team) {
-    //  League league = new League.overview(team['league']);
       Team teamToAdd = new Team.index(team);
       _teams.add(teamToAdd);
     });

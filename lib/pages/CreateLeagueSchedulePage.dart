@@ -6,15 +6,13 @@ import 'package:meagur/models/requests/LeagueScheduleRequest.dart';
 import 'package:meagur/pages/CreateLeagueScheduleDaysPage.dart';
 import 'package:meagur/pages/partials/DatePicker.dart';
 import 'package:meagur/pages/partials/DayOfWeekCheckbox.dart';
-import 'package:meagur/services/MeagurService.dart';
 import 'package:validator/validator.dart';
 
 class CreateLeagueSchedulePage extends StatefulWidget {
 
   final League _league;
-  final MeagurService meagurService;
 
-  CreateLeagueSchedulePage(this._league, this.meagurService);
+  CreateLeagueSchedulePage(this._league);
 
   @override
   State createState() => new _CreateLeagueSchedulePageState();
@@ -249,7 +247,7 @@ class _CreateLeagueSchedulePageState extends State<CreateLeagueSchedulePage> {
 
       leagueScheduleRequest.setDaysOfWeekToPlayOn(daysToAdd);
 
-      Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new CreateLeagueScheduleDaysPage(widget._league, leagueScheduleRequest, widget.meagurService)));
+      Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new CreateLeagueScheduleDaysPage(widget._league, leagueScheduleRequest)));
     }
   }
 

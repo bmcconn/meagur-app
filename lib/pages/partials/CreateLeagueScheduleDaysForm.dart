@@ -1,19 +1,18 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:meagur/main.dart';
+import 'package:meagur/models/errors/ErrorMessage.dart';
 import 'package:meagur/models/leagues/League.dart';
 import 'package:meagur/models/requests/LeagueScheduleRequest.dart';
-import 'package:meagur/pages/ManageLeague.dart';
-import 'package:meagur/services/MeagurService.dart';
+import 'package:meagur/pages/partials/NoLongerLoggedInWidget.dart';
 import 'package:validator/validator.dart';
 
 class CreateLeagueScheduleDaysForm extends StatefulWidget {
 
   final League _league;
   final LeagueScheduleRequest _leagueScheduleRequest;
-  final MeagurService meagurService;
 
-  CreateLeagueScheduleDaysForm(this._league, this._leagueScheduleRequest, this.meagurService);
+  CreateLeagueScheduleDaysForm(this._league, this._leagueScheduleRequest);
 
   @override
   State createState() => new _CreateLeagueScheduleDaysFormState();
@@ -222,9 +221,9 @@ class _CreateLeagueScheduleDaysFormState extends State<CreateLeagueScheduleDaysF
       _cards.add(_dayCards[day.getDay()]);
     });
 
-    if(_processing) {
+    if(_processing == true) {
       return new Center(child: new CircularProgressIndicator(),);
-    } else {
+    } else if(_processing == false){
       return new Form(
         key: _formKey,
         child: new ListView(
@@ -274,6 +273,8 @@ class _CreateLeagueScheduleDaysFormState extends State<CreateLeagueScheduleDaysF
             ]
         ),
       );
+    } else {
+      return new NoLongerLoggedInWidget();
     }
   }
 
@@ -324,7 +325,7 @@ class _CreateLeagueScheduleDaysFormState extends State<CreateLeagueScheduleDaysF
         _processing = true;
       });
 
-      Future<String> future = widget.meagurService
+      Future<String> future = meagurService
           .postCreateLeagueSchedule(widget._leagueScheduleRequest, widget._league.getId());
 
       future
@@ -334,15 +335,22 @@ class _CreateLeagueScheduleDaysFormState extends State<CreateLeagueScheduleDaysF
 
   }
 
-  void handleSuccess(String value) {
-    Navigator.of(context).removeRoute(ModalRoute.of(context));
+  void handleSuccess(dynamic value) {
 
-    Navigator.of(context).pushReplacementNamed('/leagues');
-   // Navigator.of(context).removeRoute(ModalRoute.of(context));
-   // Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new ManageLeague(widget._league, widget.meagurService)));
+
+    if(value is ErrorMessage) {
+      setState(() {
+        _processing = null;
+      });
+    } else {
+      Navigator.of(context).removeRoute(ModalRoute.of(context));
+      Navigator.of(context).pushReplacementNamed('/leagues');
+    }
   }
 
-  void handleError(String error) {}
+  void handleError(dynamic error) {
+    print('ERROR: ' + error.toString());
+  }
 
   String _validateSundayTimes(String value) {
     final FormFieldState<String> sundayTimesField = _fieldKeys["sunday"].currentState;
