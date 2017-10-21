@@ -138,30 +138,28 @@ class _CreateLeagueFormState extends State<CreateLeagueForm> {
               new Container(
                 margin: const EdgeInsets.only(bottom: 16.0),
                 child: new FormField(
-                    key: _teamManagerAddMembersFormFieldKey,
-                    builder: (FormFieldState state) {
-                      return new SwitchListTile(
-                          secondary: new IconButton(
-                            icon: const Icon(Icons.info),
-                            onPressed: () async {
-                              return showDialog(
-                                  context: context,
-                                  child: new AlertDialog(
-                                    content: new Text(
-                                        "Allow team managers to add and remove members from their own team. They will not be allowed to add more than the maximum specified here, including the manager of the team. The league manager is always allowed to add or remove team members or managers, regardless of how many are currently on the roster."),
-                                  ));
-                            },
-                          ),
-                          title: const Text(
-                              "Allow Team Managers to Add Members to Their Team"),
-                          // controlAffinity: ListTileControlAffinity.leading,
-                          value: _teamManagerAddMembers,
-                          onChanged: (bool newValue) {
-                            setState(() {
-                              _teamManagerAddMembers = newValue;
-                            });
-                          });
-                    }),
+                  key: _teamManagerAddMembersFormFieldKey,
+                  builder: (FormFieldState state) {
+                    return new SwitchListTile(
+                      secondary: new IconButton(
+                        icon: const Icon(Icons.info),
+                        onPressed: () async {
+                          return showDialog(
+                            context: context,
+                            child: new AlertDialog(
+                              content: new Text("Allow team managers to add and remove members from their own team. They will not be allowed to add more than the maximum specified here, including the manager of the team. The league manager is always allowed to add or remove team members or managers, regardless of how many are currently on the roster."),
+                            )
+                          );
+                        },
+                      ),
+                      title: const Text("Allow Team Managers to Add Members to Their Team"),
+                      value: _teamManagerAddMembers,
+                      onChanged: (bool newValue) {
+                        setState(() {
+                          _teamManagerAddMembers = newValue;
+                        });
+                      });
+                  }),
               ),
               new Container(
                 margin: const EdgeInsets.only(bottom: 16.0),
@@ -173,16 +171,14 @@ class _CreateLeagueFormState extends State<CreateLeagueForm> {
                             icon: const Icon(Icons.info),
                             onPressed: () async {
                               return showDialog(
-                                  context: context,
-                                  child: new AlertDialog(
-                                    content: new Text(
-                                        "This allows team managers to enter the score of games their team participates in. The managers of either team will be able to enter a game score only once after the game is completed. The league manager can always enter or edit scores of any game."),
-                                  ));
+                                context: context,
+                                child: new AlertDialog(
+                                  content: new Text("This allows team managers to enter the score of games their team participates in. The managers of either team will be able to enter a game score only once after the game is completed. The league manager can always enter or edit scores of any game."),
+                                )
+                              );
                             },
                           ),
-                          title: const Text(
-                              "Allow Team Managers to Add Game Scores"),
-                          // controlAffinity: ListTileControlAffinity.leading,
+                          title: const Text("Allow Team Managers to Add Game Scores"),
                           value: _teamManagerUpdateGames,
                           onChanged: (bool newValue) {
                             setState(() {

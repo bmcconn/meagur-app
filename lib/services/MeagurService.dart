@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:meagur/models/auth/LoginCredentials.dart';
 import 'package:meagur/models/auth/User.dart';
 import 'package:meagur/models/errors/ErrorMessage.dart';
+import 'package:meagur/models/games/GameList.dart';
 import 'package:meagur/models/leagues/League.dart';
 import 'package:meagur/models/leagues/LeagueList.dart';
 import 'package:meagur/models/requests/CreateLeagueRequest.dart';
@@ -141,12 +142,13 @@ abstract class Meagur {
   Future<dynamic> getBasketballLeague(bool cacheResponse, int leagueId) async {
 
     Object response = await authProvider.getApiToken().then((value) {
+      if(value == null) {
+        return new ErrorMessage("Unauthenticated.");
+      }
       return mApiFutures.get('/basketball_leagues/' + leagueId.toString(), ifAbsent: (k) async {
         http.Client httpClient = createHttpClient();
 
-        if(value == null) {
-          return new ErrorMessage("Unauthenticated.");
-        }
+
         http.Response response = await httpClient.get(
             Uri.encodeFull(_SERVICE_ENDPOINT + k),
             headers: {
@@ -262,6 +264,61 @@ abstract class Meagur {
       } else {
         return new ErrorMessage.fromMap(JSON.decode(response.body));
       }
+    });
+
+    return response;
+  }
+
+  Future<dynamic> getCompletedBasketballGames(int leagueId, int page) async {
+    dynamic response = await authProvider.getApiToken().then((value) async {
+      if(value == null) {
+        return new ErrorMessage("Unauthenticated.");
+      }
+      return mApiFutures.get('/basketball_leagues/$leagueId/completed_games?page=$page', ifAbsent: (k) async {
+        http.Client httpClient = createHttpClient();
+
+        http.Response response = await httpClient.get(
+            Uri.encodeFull(_SERVICE_ENDPOINT + k),
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'authorization': 'Bearer ' + value
+            }
+        );
+
+        if(response.statusCode == 200) {
+          return new GameList.fromMap(JSON.decode(response.body));
+        } else {
+          return new ErrorMessage(JSON.decode(response.body));
+        }
+      });
+    });
+    return response;
+  }
+
+  Future<dynamic> getScheduledBasketballGames(int leagueId, int page) async {
+    dynamic response = await authProvider.getApiToken().then((value) async {
+      if(value == null) {
+        return new ErrorMessage("Unauthenticated.");
+      }
+      return mApiFutures.get('/basketball_leagues/$leagueId/scheduled_games?page=$page', ifAbsent: (k) async {
+        http.Client httpClient = createHttpClient();
+
+        http.Response response = await httpClient.get(
+            Uri.encodeFull(_SERVICE_ENDPOINT + k),
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'authorization': 'Bearer ' + value
+            }
+        );
+
+        if(response.statusCode == 200) {
+          return new GameList.fromMap(JSON.decode(response.body));
+        } else {
+          return new ErrorMessage(JSON.decode(response.body));
+        }
+      });
     });
 
     return response;

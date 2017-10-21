@@ -1,6 +1,5 @@
 import 'package:meagur/models/auth/User.dart';
 
-
 class TeamMember {
   int _id;
   bool _manager;

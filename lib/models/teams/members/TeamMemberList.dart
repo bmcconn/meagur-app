@@ -1,6 +1,5 @@
 import 'package:meagur/models/teams/members/TeamMember.dart';
 
-
 class TeamMemberList {
   List<TeamMember> _members = [];
 

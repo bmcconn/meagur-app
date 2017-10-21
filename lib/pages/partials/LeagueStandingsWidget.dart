@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/services.dart';
 import 'package:meagur/main.dart';
 import 'package:flutter/material.dart';
 import 'package:meagur/models/divisions/DivisionList.dart';
@@ -25,12 +24,13 @@ class LeagueStandingsWidget extends StatefulWidget {
 class _LeagueStandingsWidgetState extends State<LeagueStandingsWidget> {
 
   Future<dynamic> _basketballLeagueFuture;
-  bool _error = false;
+  ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
     _basketballLeagueFuture = meagurService.getBasketballLeague(true, widget._leagueId);
+    _scrollController = new ScrollController();
   }
 
   @override
@@ -144,6 +144,7 @@ class _LeagueStandingsWidgetState extends State<LeagueStandingsWidget> {
                   padding: const EdgeInsets.all(16.0),
                   child: new Card(
                     child: new ListView(
+                      controller: _scrollController,
                       children: tables,
                     )
                   )
@@ -161,26 +162,4 @@ class _LeagueStandingsWidgetState extends State<LeagueStandingsWidget> {
       builder: (BuildContext context) => new TeamHomePage(teamId, teamName),
     ));
   }
-
- /* @override
-  void didUpdateWidget(LeagueStandingsWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _basketballLeagueFuture.then((value) {
-      if(value is ErrorMessage) {
-        if(value.getError() == "Unauthenticated.") {
-          print("Unauthenticated.");
-          unauthenticated();
-        }
-      }
-    });
-  }*/
-
-  void _handleLogin() {
-    unauthenticated();
-  }
-
-  void _handleExit() {
-    SystemNavigator.pop();
-  }
-
 }

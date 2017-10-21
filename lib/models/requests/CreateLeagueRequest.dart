@@ -1,5 +1,3 @@
-
-
 class CreateLeagueRequest {
   String _name;
   int _numberOfTeams;

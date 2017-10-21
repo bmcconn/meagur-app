@@ -31,14 +31,46 @@ class _LoginPageState extends State<LoginPage> {
       new GlobalKey<FormFieldState<String>>();
 
   bool _inProgress = false;
+  bool _error = false;
 
-  Widget _bottomRow() {
+  Widget _signInRow() {
     if (_inProgress == false) {
-      return _actionRow();
-    } else if (_inProgress == true) {
-      return _progressIndicator();
+      return _signInButton();
     } else {
+      return _progressIndicator();
+    }
+  }
+
+  Widget _signInButton() {
+    return new SizedBox(
+      height: 40.0,
+      child: new Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          new Expanded(
+            child: new Container(
+              child: new RaisedButton(
+                  onPressed: _handleSignIn,
+                  color: Theme.of(context).accentColor,
+                  child: new Text(
+                    "Sign In",
+                    style: new TextStyle(
+                      color: Colors.white,
+                    ),
+                  )
+              ),
+            )
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _errorRow() {
+    if(_error) {
       return _errorText();
+    } else {
+      return new Text(' ');
     }
   }
 
@@ -47,7 +79,7 @@ class _LoginPageState extends State<LoginPage> {
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
         new FlatButton(
-          onPressed: _handleRegisterPressed,
+          onPressed: _handleRegisterTapped,
           child: new Text(
             "Register",
             style: new TextStyle(color: Theme.of(context).primaryColor),
@@ -55,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
         ),
         new SizedBox(width: 16.0,),
         new FlatButton(
-          onPressed: null,
+          onPressed: _handleForgotPasswordTapped,
           child: new Text(
             "Forgot Password",
             style: new TextStyle(color: Theme.of(context).primaryColor),
@@ -66,9 +98,18 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Widget _progressIndicator() {
-    return new LinearProgressIndicator(
-      value: null,
-      valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+    return new SizedBox(
+      height: 40.0,
+      child: new Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          new LinearProgressIndicator(
+            value: null,
+            backgroundColor: Colors.orange[500],
+           // valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+          ),
+        ],
+      ),
     );
   }
 
@@ -76,6 +117,7 @@ class _LoginPageState extends State<LoginPage> {
     return new Text(
       "Those Credentials are Incorrect. Please Try Again.",
       style: new TextStyle(color: Theme.of(context).errorColor),
+      textAlign: TextAlign.center,
     );
   }
 
@@ -115,30 +157,18 @@ class _LoginPageState extends State<LoginPage> {
                   },
                   validator: _validatePassword,
                 ),
-                new Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    new Expanded(
-                        child: new Container(
-                      padding: new EdgeInsets.only(top: 16.0),
-                      child: new RaisedButton(
-                        onPressed: _handleSignIn,
-                        color: Theme.of(context).accentColor,
-                        child: new Text(
-                          "Sign In",
-                          style: new TextStyle(
-                            color: Colors.white,
-                          ),
-                        )
-                      ),
-                    ))
-                  ],
-                ),
+                new SizedBox(height: 16.0,),
+                _signInRow(),
                 new SizedBox(
                   height: 16.0,
                 ),
-                new Divider(),
-                _bottomRow(),
+                 _errorRow(),
+                new Divider(
+                  color: Colors.grey,
+                ),
+                _actionRow(),
+
+
               ],
             )
           )
@@ -155,6 +185,7 @@ class _LoginPageState extends State<LoginPage> {
     if (passedValidation) {
       setState(() {
         _inProgress = true;
+        _error = false;
       });
       Future<String> future =
           meagurService.getApiToken(new LoginCredentials(_email, _password));
@@ -169,7 +200,8 @@ class _LoginPageState extends State<LoginPage> {
     if (value == '401') {
       print("Invalid");
       setState(() {
-        _inProgress = null;
+        _inProgress = false;
+        _error = true;
       });
     } else {
       setState(() {
@@ -209,5 +241,7 @@ class _LoginPageState extends State<LoginPage> {
     return null;
   }
 
-  void _handleRegisterPressed() {}
+  void _handleRegisterTapped() {}
+
+  void _handleForgotPasswordTapped() {}
 }

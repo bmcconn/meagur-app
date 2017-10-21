@@ -16,6 +16,4 @@ class LeagueList {
   List<League> getLeagueList() => _leagues;
 
   void setLeagueList(List<League> leagues) => _leagues = leagues;
-
-
 }

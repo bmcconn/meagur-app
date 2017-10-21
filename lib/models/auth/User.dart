@@ -1,5 +1,3 @@
-
-
 class User {
   int _id;
   String _name;

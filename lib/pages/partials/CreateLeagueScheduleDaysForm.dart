@@ -4,6 +4,7 @@ import 'package:meagur/main.dart';
 import 'package:meagur/models/errors/ErrorMessage.dart';
 import 'package:meagur/models/leagues/League.dart';
 import 'package:meagur/models/requests/LeagueScheduleRequest.dart';
+import 'package:meagur/pages/InitialPage.dart';
 import 'package:meagur/pages/partials/NoLongerLoggedInWidget.dart';
 import 'package:validator/validator.dart';
 
@@ -344,7 +345,12 @@ class _CreateLeagueScheduleDaysFormState extends State<CreateLeagueScheduleDaysF
       });
     } else {
       Navigator.of(context).removeRoute(ModalRoute.of(context));
-      Navigator.of(context).pushReplacementNamed('/leagues');
+      Navigator.of(context).pushReplacement(new MaterialPageRoute(
+          builder: (BuildContext context) {
+            return new InitialPage(1);
+          }
+        )
+      );
     }
   }
 

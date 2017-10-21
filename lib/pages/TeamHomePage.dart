@@ -60,6 +60,7 @@ class _TeamHomePageState extends State<TeamHomePage> with SingleTickerProviderSt
               }
               else {
                 return new TabBarView(
+                  physics: const NeverScrollableScrollPhysics(),
                   controller: _tabController,
                   children: <Widget>[
                     new Center(child: new Text("Schedule"),),
