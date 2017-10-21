@@ -28,24 +28,24 @@ class _InitialPageState extends State<InitialPage>
 
   FloatingActionButton _floatingActionButton;
 
-  Future<dynamic> _listFuture;
-  Future<dynamic> _teamsFuture;
-  Future<dynamic> _leaguesFuture;
-
   @override
   void initState() {
     super.initState();
     _currentIndex = widget._index;
-    _teamsFuture = meagurService.getBasketballTeams(true);
-    _leaguesFuture = meagurService.getBasketballLeagues(true);
     if (_currentIndex == 0) {
       _pageTitle = "Teams";
-      _listFuture = _teamsFuture;
     } else {
       _pageTitle = "Managed Leagues";
-      _leaguesFuture = _listFuture;
       _floatingActionButton = new FloatingActionButton(
           child: const Icon(Icons.add, color: Colors.white,), onPressed: _handleCreateLeagueTap);
+    }
+  }
+
+  Future<dynamic> _getFuture() {
+    if(_currentIndex == 0) {
+      return meagurService.getBasketballTeams(true);
+    } else {
+      return meagurService.getBasketballLeagues(true);
     }
   }
 
@@ -65,18 +65,19 @@ class _InitialPageState extends State<InitialPage>
             new ListTile(
               leading: const Icon(Icons.add),
               title: const Text("Create a new League"),
-              onTap: () { Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new CreateLeaguePage())); },
+              onTap: _handleCreateLeagueTap,
             ),
             new ListTile(
               leading: const Icon(Icons.exit_to_app),
               title: const Text("Log Out"),
               onTap: _handleLogout,
-            )
+            ),
+            new AboutListTile()
           ],
         )
       ),
       body: new FutureBuilder(
-        future: _listFuture,
+        future: _getFuture(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.none: return new Container();
@@ -109,6 +110,7 @@ class _InitialPageState extends State<InitialPage>
                   );
                 }
                 return new ListView(
+                  primary: false,
                   padding: const EdgeInsets.all(16.0),
                   children: list,
                 );
@@ -139,12 +141,10 @@ class _InitialPageState extends State<InitialPage>
     setState(() {
       _currentIndex = position;
       if (position == 0) {
-        _listFuture = _teamsFuture;
         _pageTitle = "Teams";
         _floatingActionButton = null;
 
       } else if (position == 1) {
-        _listFuture = _leaguesFuture;
         _pageTitle = "Managed Leagues";
         _floatingActionButton = new FloatingActionButton(
             child: const Icon(Icons.add, color: Colors.white,), onPressed: _handleCreateLeagueTap);
@@ -154,25 +154,12 @@ class _InitialPageState extends State<InitialPage>
   }
 
   void _handleCreateLeagueTap() {
-    Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new CreateLeaguePage()));
+    Navigator.of(context)..pop()..push(new MaterialPageRoute(builder: (BuildContext context) => new CreateLeaguePage()));
   }
 
   void _handleLogout() {
-    Navigator.of(context).pushReplacement(new MaterialPageRoute(builder: (BuildContext context) {
+    Navigator.of(context)..pop..pushReplacement(new MaterialPageRoute(builder: (BuildContext context) {
       return new LogoutPage();
     }));
-  }
-
-  @override
-  void didUpdateWidget(InitialPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _listFuture.then((value) {
-      if(value is ErrorMessage) {
-        if(value.getError() == "Unauthenticated.") {
-          print("Unauthenticated.");
-          unauthenticated();
-        }
-      }
-    });
   }
 }

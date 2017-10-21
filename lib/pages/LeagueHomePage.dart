@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meagur/pages/partials/LeagueScheduleWidget.dart';
 import 'package:meagur/pages/partials/LeagueStandingsWidget.dart';
 
 class LeagueHomePage extends StatefulWidget {
@@ -45,12 +46,21 @@ class _LeagueHomePageState extends State<LeagueHomePage> with SingleTickerProvid
         ),
       ),
       body: new TabBarView(
+       // physics: new NeverScrollableScrollPhysics(),
         controller: _tabController,
         children: <Widget>[
           new LeagueStandingsWidget(widget._leagueId),
-          new Center(child: new Text("Schedule Page"),)
+          new LeagueScheduleWidget(widget._leagueId),
         ],
       )
     );
   }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+
 }

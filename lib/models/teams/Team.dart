@@ -36,6 +36,11 @@ class Team {
     _teamMembers = new TeamMemberList.fromMap(map['team_members']);
   }
 
+  Team.inGame(Map<String, dynamic> map) {
+    _id = map['id'];
+    _name = map['name'];
+  }
+
   int getId() => _id;
   String getName() => _name;
   League getLeague() => _league;
