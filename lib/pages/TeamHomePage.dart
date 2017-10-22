@@ -1,9 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:meagur/main.dart';
-import 'package:meagur/models/errors/ErrorMessage.dart';
-import 'package:meagur/pages/partials/NoLongerLoggedInWidget.dart';
 import 'package:meagur/pages/partials/TeamMembersWidget.dart';
+import 'package:meagur/pages/partials/TeamScheduleWidget.dart';
 
 class TeamHomePage extends StatefulWidget {
 
@@ -25,12 +22,9 @@ class _TeamHomePageState extends State<TeamHomePage> with SingleTickerProviderSt
     new Tab(text: "Team Members",)
   ];
 
-  Future<dynamic> _teamFuture;
-
   @override
   void initState() {
     super.initState();
-    _teamFuture = meagurService.getBasketballTeam(true, widget._teamId);
     _tabController = new TabController(length: _tabs.length, vsync: this);
   }
 
@@ -44,32 +38,12 @@ class _TeamHomePageState extends State<TeamHomePage> with SingleTickerProviderSt
           tabs: _tabs,
         ),
       ),
-      body: new FutureBuilder(
-        future: _teamFuture,
-        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.none: return new Container();
-            case ConnectionState.waiting: return new Center(child: new CircularProgressIndicator(),);
-            default:
-              if(snapshot.data is ErrorMessage) {
-                if(snapshot.data.getError() == "Unauthenticated.") {
-                  return new NoLongerLoggedInWidget();
-                } else {
-                  return new Placeholder();
-                }
-              }
-              else {
-                return new TabBarView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  controller: _tabController,
-                  children: <Widget>[
-                    new Center(child: new Text("Schedule"),),
-                    new TeamMembersWidget(snapshot.data)
-                  ]
-                );
-              }
-          }
-        }
+      body: new TabBarView(
+        controller: _tabController,
+        children: <Widget>[
+          new TeamScheduleWidget(widget._teamId),
+          new TeamMembersWidget(widget._teamId),
+        ]
       )
     );
   }

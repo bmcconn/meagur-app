@@ -324,6 +324,35 @@ abstract class Meagur {
     return response;
   }
 
+  Future<dynamic> getBasketballTeamGames(int teamId) async {
+    dynamic response = await authProvider.getApiToken().then((value) async {
+      if(value == null) {
+        return new ErrorMessage("Unauthenticated.");
+      }
+
+      return mApiFutures.get('/basketball_teams/$teamId/games', ifAbsent: (k) async {
+        http.Client httpClient = createHttpClient();
+
+        http.Response response = await httpClient.get(
+          Uri.encodeFull(_SERVICE_ENDPOINT + k),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'authorization': 'Bearer ' + value
+          }
+        );
+
+        if(response.statusCode == 200) {
+          return new GameList.fromMap(JSON.decode(response.body));
+        } else {
+          return new ErrorMessage(JSON.decode(response.body));
+        }
+      });
+    });
+
+    return response;
+  }
+
   Future<String> getApiToken(LoginCredentials loginCredentials) async {
 
     http.Client httpClient = createHttpClient();

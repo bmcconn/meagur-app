@@ -243,6 +243,7 @@ class _CreateLeagueFormState extends State<CreateLeagueForm> {
   void handleSuccess(dynamic value) {
     if(value is ErrorMessage) {
       setState(() {
+        print("Here");
         _processing = null;
       });
     } else {
@@ -258,6 +259,7 @@ class _CreateLeagueFormState extends State<CreateLeagueForm> {
 
   void handleError(dynamic error) {
     setState(() {
+      print(error.toString());
       _processing = null;
     });
   }
