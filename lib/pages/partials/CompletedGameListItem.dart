@@ -24,7 +24,6 @@ class CompletedGameListItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16.0),
       child: new Row(
         children: <Widget>[
-
           new Expanded(
             flex: 5,
             child: new Container(
