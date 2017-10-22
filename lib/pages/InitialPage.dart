@@ -65,7 +65,7 @@ class _InitialPageState extends State<InitialPage>
             new ListTile(
               leading: const Icon(Icons.add),
               title: const Text("Create a new League"),
-              onTap: _handleCreateLeagueTap,
+              onTap: _handleCreateLeagueTapFromDrawer,
             ),
             new ListTile(
               leading: const Icon(Icons.exit_to_app),
@@ -154,6 +154,10 @@ class _InitialPageState extends State<InitialPage>
   }
 
   void _handleCreateLeagueTap() {
+    Navigator.of(context).push(new MaterialPageRoute(builder: (BuildContext context) => new CreateLeaguePage()));
+  }
+
+  void _handleCreateLeagueTapFromDrawer() {
     Navigator.of(context)..pop()..push(new MaterialPageRoute(builder: (BuildContext context) => new CreateLeaguePage()));
   }
 
