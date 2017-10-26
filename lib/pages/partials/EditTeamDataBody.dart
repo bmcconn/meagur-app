@@ -234,27 +234,34 @@ class _EditTeamDataBodyState extends State<EditTeamDataBody> {
 
     String newName = await showDialog(
       context: context,
-      child: new AlertDialog(
-        title: new Text("Choose a New Team Name"),
-        content: _newNameDialogContent,
-        actions: <Widget>[
-          new FlatButton(
-            child: const Text('Cancel'),
-            onPressed: () { Navigator.of(context).pop(); },
+      child: new Column(
+        children: <Widget>[
+          new Container(
+            padding: const EdgeInsets.only(top: 64.0),
+            child: new AlertDialog(
+            //  title: new Text("Choose a New Team Name"),
+              content: _newNameDialogContent,
+              actions: <Widget>[
+                new FlatButton(
+                  child: const Text('Cancel'),
+                  onPressed: () { Navigator.of(context).pop(); },
+                ),
+                new FlatButton(
+                  child: const Text("Submit"),
+                  onPressed: () async {
+                    final FormFieldState formField = _nameFormFieldKey.currentState;
+                    bool passedValidation = formField.validate();
+                    formField.save();
+
+                    if(passedValidation == true) {
+
+                      Navigator.of(context).pop(_nameFormFieldKey.currentState.value);
+                    }
+                  },
+                )
+              ],
+            ),
           ),
-          new FlatButton(
-            child: const Text("Submit"),
-            onPressed: () async {
-              final FormFieldState formField = _nameFormFieldKey.currentState;
-              bool passedValidation = formField.validate();
-              formField.save();
-
-              if(passedValidation == true) {
-
-                Navigator.of(context).pop(_nameFormFieldKey.currentState.value);
-              }
-            },
-          )
         ],
       )
     );
