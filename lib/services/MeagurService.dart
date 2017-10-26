@@ -7,6 +7,7 @@ import 'package:meagur/models/leagues/League.dart';
 import 'package:meagur/models/leagues/LeagueList.dart';
 import 'package:meagur/models/requests/CreateLeagueRequest.dart';
 import 'package:meagur/models/requests/LeagueScheduleRequest.dart';
+import 'package:meagur/models/requests/PatchTeamRequest.dart';
 import 'package:meagur/models/teams/Team.dart';
 import 'package:meagur/models/teams/TeamList.dart';
 import 'package:quiver/cache.dart';
@@ -23,7 +24,7 @@ abstract class Meagur {
   static const String _SERVICE_ENDPOINT = "http://192.168.0.13:8000/api";
   static const String _AUTH_ENDPOINT = "http://192.168.0.13:8000/oauth/token";
   static final AuthProvider authProvider = new AuthProvider();
-  MapCache<String, String> mApiFutures = new MapCache.lru(maximumSize: 10);
+  MapCache<String, String> mApiFutures = new MapCache.lru(maximumSize: 20);
 
   AuthProvider getAuthProvider() => authProvider;
 
@@ -72,7 +73,7 @@ abstract class Meagur {
 
   Future<dynamic> getBasketballTeam(bool cacheResponse, int teamId) async {
 
-    Object response = await authProvider.getApiToken().then((value) {
+    dynamic response = await authProvider.getApiToken().then((value) {
       return mApiFutures.get('/basketball_teams/' + teamId.toString(), ifAbsent: (k) async {
         http.Client httpClient = createHttpClient();
 
@@ -103,6 +104,38 @@ abstract class Meagur {
     });
 
     return response;
+  }
+
+  Future<dynamic> patchBasketballTeam(int teamId, PatchTeamRequest request) async {
+    dynamic response = await authProvider.getApiToken().then((value) async {
+      if(value == null) {
+        return new ErrorMessage("Unauthenticated.");
+      }
+
+      http.Client httpClient = createHttpClient();
+
+      const jsonCodec = const JsonCodec();
+
+      http.Response response = await httpClient.patch(
+          Uri.encodeFull(_SERVICE_ENDPOINT + '/basketball_teams/$teamId'),
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'authorization': 'Bearer ' + value
+          },
+        body: jsonCodec.encode(request),
+      );
+
+      if(response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+
+    return response;
+
   }
 
   Future<dynamic> getBasketballLeagues(bool cacheResponse) async {

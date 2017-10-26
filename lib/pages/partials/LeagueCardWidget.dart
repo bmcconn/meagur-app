@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:meagur/main.dart';
 import 'package:meagur/models/leagues/League.dart';
 import 'package:meagur/pages/ManageLeague.dart';
 import 'package:meagur/pages/LeagueHomePage.dart';
@@ -27,7 +26,6 @@ class _LeagueCardWidgetState extends State<LeagueCardWidget> {
           new InkWell(
             onTap: _handleViewTap,
             child: new ListTile(
-              //    leading: const Icon(Icons.image),
               title: new Text(widget._league.getName(), style: new TextStyle(color: Theme.of(context).primaryColor),),
             ),
           ),
@@ -36,6 +34,7 @@ class _LeagueCardWidgetState extends State<LeagueCardWidget> {
             child: new ButtonBar(
               alignment: MainAxisAlignment.end,
               children: <Widget>[
+                new FlatButton(onPressed: _handleEditGamesTap, child: const Text("Edit Games"),),
                 new FlatButton(onPressed: _handleManageTap, child: const Text("Manage",),),
               ],
             ),
@@ -51,9 +50,13 @@ class _LeagueCardWidgetState extends State<LeagueCardWidget> {
     ));
   }
 
+  void _handleEditGamesTap() {
+
+  }
+
   void _handleManageTap() {
     Navigator.of(context).push(new MaterialPageRoute(
-      builder: (BuildContext context) => new ManageLeague(widget._league, meagurService),
+      builder: (BuildContext context) => new ManageLeague(widget._league),
     ));
   }
 }

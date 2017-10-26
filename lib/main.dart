@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meagur/pages/InitialPage.dart';
 import 'package:meagur/pages/top_level/HomePage.dart';
 import 'package:meagur/services/MeagurService.dart';
 
@@ -29,8 +30,8 @@ class MyApp extends StatelessWidget {
         backgroundColor: Colors.lightBlue[200]
       ),
       routes: <String, WidgetBuilder> {
-        '/teams': (BuildContext context) => new HomePage(0),
-        '/leagues': (BuildContext context) => new HomePage(1),
+        '/teams': (BuildContext context) => new InitialPage(0),
+        '/leagues': (BuildContext context) => new InitialPage(1),
       },
 
     );

@@ -95,6 +95,8 @@ class _InitialPageState extends State<InitialPage>
                       margin: const EdgeInsets.only(bottom: 8.0),
                     ));
                   });
+
+                  list.add(new Container(height: 60.0,));
                 } else {
                   snapshot.data.getLeagueList().forEach((league) {
                     list.add(new Container(
@@ -102,6 +104,7 @@ class _InitialPageState extends State<InitialPage>
                       margin: const EdgeInsets.only(bottom: 8.0),
                     ));
                   });
+                  list.add(new Container(height: 60.0,));
                 }
 
                 if (list.length == 0) {
