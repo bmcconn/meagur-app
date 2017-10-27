@@ -19,9 +19,12 @@ class _EditTeamDataBodyState extends State<EditTeamDataBody> {
 
   String _teamName;
   final GlobalKey<FormState> _managerFormKey = new GlobalKey<FormState>();
+  final GlobalKey<FormState> _memberFormKey = new GlobalKey<FormState>();
   final GlobalKey<FormFieldState<String>> _nameFormFieldKey = new GlobalKey<FormFieldState<String>>();
   final GlobalKey<FormFieldState<String>> _managerNameFormFieldKey = new GlobalKey<FormFieldState<String>>();
   final GlobalKey<FormFieldState<String>> _managerEmailFormFieldKey = new GlobalKey<FormFieldState<String>>();
+  final GlobalKey<FormFieldState<String>> _memberNameFormFieldKey = new GlobalKey<FormFieldState<String>>();
+  final GlobalKey<FormFieldState<String>> _memberEmailFormFieldKey = new GlobalKey<FormFieldState<String>>();
   Widget _teamNameRow;
   Widget _bottomSectionWidget;
   Widget _newNameDialogContent;
@@ -257,6 +260,59 @@ class _EditTeamDataBodyState extends State<EditTeamDataBody> {
     );
   }
 
+  Widget _inviteMemberDialog() {
+    return new Column(
+      children: <Widget>[
+        new Container(
+          padding: const EdgeInsets.only(top: 64.0),
+          child: new AlertDialog(
+            content: new Form(
+              key: _memberFormKey,
+              child: new Column(
+                children: <Widget>[
+                  new TextFormField(
+                    key: _memberNameFormFieldKey,
+                    validator: _validateMemberName,
+                    decoration: new InputDecoration(
+                        labelText: "Name"
+                    ),
+                  ),
+                  new TextFormField(
+                    key: _memberEmailFormFieldKey,
+                    validator: _validateMemberEmail,
+                    decoration: new InputDecoration(
+                        labelText: "Email"
+                    ),
+                  )
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child: const Text("Cancel"),
+                onPressed: () { Navigator.of(context).pop(); },
+              ),
+              new FlatButton(
+                child: const Text("Submit"),
+                onPressed: () {
+                  final FormState form = _memberFormKey.currentState;
+                  bool passedValidation = form.validate();
+                  form.save();
+                  if(passedValidation) {
+                    Navigator.of(context).pop({
+                      'name': _memberNameFormFieldKey.currentState.value,
+                      'email': _memberEmailFormFieldKey.currentState.value,
+                    });
+                  }
+                },
+              )
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
   Widget _confirmationDialog() {
     return new AlertDialog(
       content: const Text("The invite has been successfully sent. The user will receive an email asking to accept."),
@@ -393,8 +449,41 @@ class _EditTeamDataBodyState extends State<EditTeamDataBody> {
     }
   }
 
-  void _handleAddMemberTapped() {
+  Future<Null> _handleAddMemberTapped() async {
+    Map inviteData = await showDialog(
+      context: context,
+      child: _inviteMemberDialog()
+    );
 
+    if(inviteData != null) {
+      setState(() {
+        _teamNameRow = _linearProgressIndicator();
+        _bottomSectionWidget = new Container();
+      });
+
+      Map request = {
+        "sport": "basketball",
+        "team_id": widget._team.getId(),
+        "team_members_to_add": [
+          {
+            "user_email": inviteData['email']
+          }
+        ]
+      };
+
+      bool success = await meagurService.postBasketballTeamMembershipInvite(request);
+
+      if(success) {
+        setState(() {
+          _teamNameRow = _nameRow();
+          _bottomSectionWidget = _bottomSection();
+        });
+        showDialog(
+            context: context,
+            child: _confirmationDialog()
+        );
+      }
+    }
   }
 
   void _handleRemoveTeamMemberTap(int memberId) {
@@ -423,6 +512,26 @@ class _EditTeamDataBodyState extends State<EditTeamDataBody> {
 
   String _validateManagerEmail(String value) {
     FormFieldState<String> state = _managerEmailFormFieldKey.currentState;
+
+    if(state.value.isEmpty || state.value == null || !isEmail(value)) {
+      return "Please enter a valid email";
+    }
+
+    return null;
+  }
+
+  String _validateMemberName(String value) {
+    FormFieldState<String> state = _memberNameFormFieldKey.currentState;
+
+    if(state.value.isEmpty) {
+      return "Please enter a name";
+    }
+
+    return null;
+  }
+
+  String _validateMemberEmail(String value) {
+    FormFieldState<String> state = _memberEmailFormFieldKey.currentState;
 
     if(state.value.isEmpty || state.value == null || !isEmail(value)) {
       return "Please enter a valid email";
