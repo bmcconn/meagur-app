@@ -137,6 +137,36 @@ abstract class Meagur {
     return response;
 
   }
+  
+  Future<dynamic> postBasketballTeamManagementInvite(Map request) async {
+    dynamic response = await authProvider.getApiToken().then((value) async {
+      if(value == null) {
+        return new ErrorMessage("Unauthenticated.");
+      }
+      
+      http.Client httpClient = createHttpClient();
+
+      const jsonCodec = const JsonCodec();
+      
+      http.Response response = await httpClient.post(
+        Uri.encodeFull(_SERVICE_ENDPOINT + '/team_management_invites'),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'authorization': 'Bearer ' + value
+      },
+      body: jsonCodec.encode(request),
+      );
+
+      if(response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    return response;
+  }
 
   Future<dynamic> getBasketballLeagues(bool cacheResponse) async {
 
